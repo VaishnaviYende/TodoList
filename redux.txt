@@ -1,0 +1,174 @@
+action-> index.js
+----------------------
+export  const addTask = (task)=>{
+    return{
+        type: 'ADD_TASK',
+        payload: task
+
+    };
+    
+}
+
+export  const deleteTask = (taskID)=>{
+    return{
+        type: 'DELETE_TASK',
+        payload: taskID
+    };
+}
+
+export default {addTask, deleteTask};
+
+==================================================================
+component-> header-> index.js
+-------------------------------
+import React from 'react';
+
+export default class Header extends React.Component{
+    render(){
+        return(
+            <h1>Todo Application</h1>
+        );
+    }
+}
+================================================================
+component-> task-> index.js
+-------------------------------
+import React from 'react';
+import { connect } from 'react-rdux';
+import {bindActionCreator} from 'redux';
+import {deleteTask} from '../../Actions/';
+
+
+class Task extends React.Component{
+    render()
+    {
+        return(
+            <tr>
+                <td>
+                    {this.props.task}
+                </td>
+                <td>
+                    <button onClick={()=>{this.props.deleteTask(this.props.id)}}>Delete Item</button>
+                </td>
+                <td>
+                    {this.props.task}
+                </td>
+            </tr>
+        )
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return bindActionCreator((deleteTask),dispatch);
+
+    
+}
+
+export default connect(()=>{return{};},mapDispatchToProps)(Task);
+==================================================================
+component-> taskbar-> index.js
+-------------------------------
+import React from 'react';
+import {Connect} from 'react-redux';
+import {bindActionCreaator} from 'redux';
+import {addTask} from '../../Actions/';
+
+
+class Taskbar extends React.Component{
+    render(){
+        return(
+            <div>
+                <input type='text' ref='task' placeholder='Add your Task'/>
+                <button onClick={()=>this.props.addTask(this.refs.task.value)}>Add Task </button>
+            </div>
+        );
+    }
+};
+
+function mapDispatchToProps(dispatch){
+    return bindActionCreaator((addTask),dispatch);
+}
+
+export default Connect(()=>{},mapDispatchToProps)(Taskbar);
+==============================================================================
+component-> tasklist-> index.js
+-------------------------------
+import React from 'react';
+import {connect} from 'react-redux';
+
+
+class Tasklist extends React.Component{
+    render(){
+        return(
+            <table>
+                <thead>
+                    <th>
+                    Task
+                    </th>
+                    <tr>
+                        Actions
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.props.tasks.map((task,index)=> <Task key={index} task={task} />)}
+                </tbody>
+            </table>
+        );
+    }
+}
+
+function mapStateToProps(state){
+    return {
+        tasks : state.tasks
+    }
+}
+
+export default connect(mapStateToProps)(Tasklist);
+==============================================================================================
+Reducers-> index.js
+-------------------------------
+import {combineReducers} from 'redux';
+
+const taskReducer = (state = [], action)=>
+{
+    switch(action.type){
+        case 'ADD_TASK':
+        state = state.concat(action.payload);
+        break;
+        case 'DELETE_TASK':
+        state = state.slice();
+        state.splice(state.payload.i);
+        break;
+        
+    }
+    return state;
+},
+
+reducers = combineReducers({
+    tasks:taskReducer
+});
+
+export default reducers;
+
+=============================================================================
+
+main index.js
+---------------
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
+import {CreateStore} from 'redux';
+import reducers from './Reducers/';
+import './index.css';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
+
+let store = CreateStore(reducers);
+
+ReactDOM.render(
+<Provider store={store}>
+<App />
+</Provider>
+, 
+document.getElementById('root'));
+==============================================================
